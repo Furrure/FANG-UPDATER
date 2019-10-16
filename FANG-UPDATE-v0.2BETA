@@ -217,7 +217,7 @@ def standard_inputs(take_in): #Built in inputs
     if commands[0] == 'help': #help command
         print()
         print("FangOS uses a command based navigation system")
-        print("There are currently seven built in commands to use in 0.1")
+        print("There are currently seven built in commands to use in 0.2 BETA")
         print("clear: no extra arguments needed, \n\tmoves the screen down and presents new prompt")
         print("math [operation]: optional argument, it performs the inputed operation")
         print("load [name]: optional argument, it loads the inputed file name")
@@ -233,7 +233,7 @@ def standard_inputs(take_in): #Built in inputs
         print()
         print()
         print()
-        print("Fang OS v0.1")
+        print("Fang OS v0.2 BETA")
         print("-------------------")
         return commands[0]
 
