@@ -20,7 +20,7 @@ for x in os.listdir('/Users/' + user + '/Fang_Extensions'):
 
 print()
 print()
-print('Welcome to Fang OS v0.1,', user)
+print('Welcome to Fang OS v0.1 BETA,', user)
 print('-------------------')
 time.sleep(1)
 
@@ -121,7 +121,7 @@ def standard_inputs(take_in):
             print()
             print()
             print()
-            print('Fang OS v0.1')
+            print('Fang OS v0.1 BETA')
             print('-------------------')
             return commands[0]
     if commands[0] == 'math':
