@@ -2,7 +2,7 @@
 Jacob Scrapchansky, Cryptonic Designs, 2019
 Fang OS, a terminal based operating system made in python, it has the ability to run
 execute multiple programs for your computer, including running othe scripts
-v0.1
+v0.1 BETA
 """
 import os, getpass, time
 os.system('clear')
