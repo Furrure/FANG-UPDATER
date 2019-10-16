@@ -1,0 +1,222 @@
+"""
+Jacob Scrapchansky, Cryptonic Designs, 2019
+Fang OS, a terminal based operating system made in python, it has the ability to run
+execute multiple programs for your computer, including running othe scripts
+v0.1
+"""
+import os, getpass, time
+os.system('clear')
+user = getpass.getuser()
+presetv = []
+preset = False
+prompt_e = ''
+extensions = []
+extension_n = []
+extensions_a = []
+for x in os.listdir('/Users/' + user + '/Fang_Extensions'):
+    if x[len(x) - 4:] == 'fext':
+        extensions.append('/Users/' + user + '/Fang_Extensions/' + x)
+        extension_n.append(x)
+
+print()
+print()
+print('Welcome to Fang OS v0.1,', user)
+print('-------------------')
+time.sleep(1)
+
+def prompt(text='Enter your command: ', line=True, prompt_text='> '):
+    if line == True:
+        print('-------------------')
+    print(text)
+    take_in = input(prompt_text)
+    return take_in
+
+
+def standard_inputs(take_in):
+    global preset
+    global presetv
+    commands = presetv + take_in.strip().split()
+    if len(commands) == 0:
+        print()
+        print('No input detected')
+        return
+    if commands[0] == 'preset':
+        if len(commands) >= 2:
+            preset = True
+            presetv = [commands[1]]
+            print('Enter "cancel_preset" to exit preset')
+        if len(commands) == 1:
+            print()
+            inputv = prompt('Enter preset command: ', False)
+            if len(inputv.strip()) > 0:
+                preset = True
+                presetv = [inputv.strip().split()[0]]
+                print('Enter "cancel_preset" to exit preset')
+            else:
+                print('No command detected')
+        return commands[0]
+    if preset:
+        if len(commands) > 1:
+            pass
+    if preset == True:
+        if commands[1] == 'cancel_preset':
+            presetv = []
+            return commands[0]
+        if commands[0] == 'list':
+            if len(commands) == 1:
+                print()
+                print('fang_apps\nfang_extensions')
+                print()
+                get_in = prompt('Input list', line=False)
+                if get_in == 'fang_extensions':
+                    print()
+                    for x in extension_n:
+                        print(x)
+
+                    return commands[0]
+                if get_in == 'fang_apps':
+                    apps = []
+                    for x in os.listdir('/Users/' + user + '/Fang_Apps'):
+                        if x[len(x) - 2:] == 'py':
+                            apps.append(x)
+
+                    print()
+                    for x in apps:
+                        print(x)
+
+                    return commands[0]
+                print('Error while listing')
+            if len(commands) >= 2:
+                if commands[1] == 'fang_extensions':
+                    print()
+                    for x in extension_n:
+                        print(x)
+
+                    return commands[0]
+                if commands[1] == 'fang_apps':
+                    apps = []
+                    for x in os.listdir('/Users/' + user + '/Fang_Apps'):
+                        if x[len(x) - 2:] == 'py':
+                            apps.append(x)
+
+                    print()
+                    for x in apps:
+                        print(x)
+
+                    return commands[0]
+                print('Error while listing')
+        if commands[0] == 'help':
+            print()
+            print('FangOS uses a command based navigation system')
+            print('There are currently six built in commands to use in 0.1')
+            print('clear: no extra arguments needed, \n\tmoves the screen down and presents new prompt')
+            print('math [operation]: optional argument, it performs the inputed operation')
+            print('load [name]: optional argument, it loads the inputed file name')
+            print('list [list name]: optional argument, it lists the available extensions or apps')
+            print('quit: no extra arguments, it quits back to terminal')
+            print('preset [preset command]: optional argument, sets a command before each prompt \n\tfor quick use of one command')
+            print('There are others available if they are within your extensions folder')
+        if commands[0] == 'clear':
+            os.system('clear')
+            print()
+            print()
+            print()
+            print('Fang OS v0.1')
+            print('-------------------')
+            return commands[0]
+    if commands[0] == 'math':
+        if len(commands) == 1:
+            try:
+                print()
+                print(eval(prompt('Enter problem', False)))
+            except Exception:
+                print('Error While computing problem')
+
+            if len(commands) == 2:
+                try:
+                    print(eval(commands[1]))
+                except Exception:
+                    print('error while computing problem')
+
+            elif len(commands) >= 3:
+                print('Extra argument detected')
+            return commands[0]
+        if commands[0] == 'quit':
+            return commands[0]
+        if commands[0] == 'load':
+            files = []
+            print()
+            if len(commands) == 1:
+                print('Scanning for available apps...')
+                print()
+                time.sleep(0.5)
+                for file in os.listdir('/Users/' + user + '/Fang_Apps'):
+                    if file[len(file) - 2:] == 'py':
+                        files.append(file)
+
+                if len(files) == 1:
+                    print('No Files Available')
+                    return commands[0]
+                for x in files:
+                    print(x[:len(x) - 3])
+
+                print()
+                file_name = prompt('Input the name of the file from the list above', False)
+                if len(file_name) == 0:
+                    print('Error while opening program. ')
+                    return commands[0]
+                print()
+                print('Loading ' + file_name + '...')
+                print()
+                time.sleep(0.5)
+                for x in files:
+                    if file_name + '.py' == x:
+                        try:
+                            os.system('python3 /Users/' + user + '/Fang_Apps/' + file_name + '.py')
+                        except Exception:
+                            print('Error while opening program.')
+
+            else:
+                if len(commands) == 2:
+                    print()
+                    print('Loading ' + commands[1] + '...')
+                    print()
+                    try:
+                        os.system('python3 /Users/' + user + '/Fang_Apps/' + commands[1] + '.py')
+                    except Exception:
+                        print('Error while opening program.')
+
+                else:
+                    print('Extra argument detected')
+                return commands[0]
+            if commands[0] != 'load':
+                if commands[0] != 'math':
+                    if commands[0] != 'help':
+                        if commands[0] != 'list':
+                            if commands[0] != 'quit':
+                                pass
+    if commands[0] != 'clear':
+        for x in extensions:
+            opened = open(x, 'r')
+            opened_l = str(opened.read()).strip().split()
+            opened.close()
+            if opened_l[0] == "'''" + commands[0] + "'''":
+                passto = ''
+                for y in range(len(commands) - 1):
+                    passto = passto + ' ' + commands[(y + 1)]
+
+                os.system('python3 ' + x + ' ' + passto)
+                return commands[0]
+
+        print('Command not found')
+        return commands[0]
+
+
+while 1:
+    if preset == True:
+        prompt_e = presetv[0] + ' ' if len(presetv) >= 1 else ''
+    command_get = standard_inputs(prompt(' ', line=False, prompt_text=('f|: ' + prompt_e)))
+    if command_get == 'quit':
+        break
+
+quit()
