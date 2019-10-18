@@ -69,7 +69,7 @@ if len(arguments) == 1:
 	print() #Boot Text
 	print()
 	print("Welcome to Fang OS v0.2 BETA,", user)
-    	print("DEVELOPMENT BUILD -- MAY BE UNSTABLE")
+    print("DEVELOPMENT BUILD -- MAY BE UNSTABLE")
 	print("-------------------")
 
 
