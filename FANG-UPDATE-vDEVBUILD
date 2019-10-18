@@ -68,7 +68,7 @@ for x in os.listdir("/Users/" + user + "/Fang_Extensions"): #Gather list of exte
 if len(arguments) == 1:
     print() #Boot Text
     print()
-    print("Welcome to Fang OS v0.2 BETA,", user)
+    print("Welcome to Fang OS vDEVBUILD,", user)
     print("DEVELOPMENT BUILD -- MAY BE UNSTABLE")
     print("-------------------")
 
@@ -263,7 +263,7 @@ def standard_inputs(take_in): #Built in inputs
         print()
         print()
         print()
-        print("Fang OS v0.2 BETA")
+        print("Fang OS vDEVBUILD")
         print("DEVELOPEMENT BUILD -- MAY BE UNSTABLE")
         print("-------------------")
         return commands[0]
