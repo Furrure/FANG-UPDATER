@@ -69,6 +69,7 @@ if len(arguments) == 1:
 	print() #Boot Text
 	print()
 	print("Welcome to Fang OS v0.2 BETA,", user)
+    	print("DEVELOPMENT BUILD -- MAY BE UNSTABLE")
 	print("-------------------")
 
 
@@ -297,6 +298,7 @@ def standard_inputs(take_in): #Built in inputs
             fang_update(commands[1])
         if len(commands) == 1:
             fang_update()
+        return commands[0]
 
 
 
@@ -518,13 +520,14 @@ def fang_update(version_n=False):
     user_n = getpass.getuser()
     print()
 
-    print("Make sure your computer is connected to the internet, \nthe update process may take a few minutes, do you want to continue? (y/n)")
-    descision = input()
-    if descision != 'y':
-        return None
+    
     print()
     print("Accessing online update packages...")
     if not(version_n):
+        print("Make sure your computer is connected to the internet, \nthe update process may take a few minutes, do you want to continue? (y/n)")
+        descision = input()
+        if descision != 'y':
+            return None
         avail_updates = requests.get("https://raw.githubusercontent.com/TheWolfgaming86/FANG-UPDATER/master/AVAILABLE-PACKAGES")
         print()
         print(avail_updates.text)
@@ -533,12 +536,13 @@ def fang_update(version_n=False):
             version = "v0.2BETA"
     else:
         version = version_n
+        
 
     time.sleep(1)
     update = requests.get("https://raw.githubusercontent.com/TheWolfgaming86/FANG-UPDATER/master/FANG-UPDATE-" + version)
     if update.text == '404: Not Found\n':
         print("Version not found, stopping")
-        quit()
+        return None
     print("Putting aside old packages...")
     try:
         os.remove("/Users/" + user_n + "/fang.pyc")
