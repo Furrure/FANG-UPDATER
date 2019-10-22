@@ -30,7 +30,6 @@ if len(arguments) == 1:
     online_tools_active = True
 
     try: #online tools installation
-        jake = jake
         online_tools_active = True
         import requests
     except Exception:
