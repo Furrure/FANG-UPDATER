@@ -9,7 +9,13 @@ import os #Import Necessary modules
 import getpass
 import time
 import sys
-import requests
+'''
+multiple argument math
+Fenris operating Mode
+- apply to all functions
+'''
+
+
 
 arguments = sys.argv
 
@@ -17,11 +23,41 @@ user = getpass.getuser() #Define necessary variables
 presetv = []
 preset = False
 prompt_e = ''
+
+
 if len(arguments) == 1:
-	print("Preparing Files...")
+    print("Preparing Files...")
+    online_tools_active = True
+
+    try: #online tools installation
+        jake = jake
+        online_tools_active = True
+        import requests
+    except Exception:
+        print()
+        print("FangOS currently doesn't have the necessary online tools,\n would you like to install them now?")
+        if not(input("> ") != "y"):
+            print()
+            print("installing...")
+            try:
+                os.system("pip3 install --user requests")
+                import requests
+            except Exception:
+                print()
+                print("There was an error while trying to download the online tools, \nplease make sure you have an open internet connection.")
+                print("Access to updates and repositories will be temorarily offline, \nrestart FangOS if you would like to install the online tools")
+                time.sleep(1)
+                online_tools_active = False
+        else:
+            print("Not installing the online tools will prohibit you from gaining access to updates and Fang repositories, \nrestart FangOS if you would like to install the online tools")
+            online_tools_active = False
+            time.sleep(1)
+
 fang_a_c = False #Search for Fang_Apps and Fang_Extensions and
 fang_e_c = False #creates if does not exist
 fang_au_c = False
+
+
 for x in os.listdir("/Users/" + user):
     if x == 'Fang_Apps':
         fang_a_c = True
@@ -82,12 +118,20 @@ def prompt(text="Enter your command: ", line=True, prompt_text="> "): #Prompt Fu
     take_in = input(prompt_text)
     return take_in
 
-def standard_inputs(take_in): #Built in inputs
+def standard_inputs(take_in, FOP=False): #Built in inputs
     
     global presetv #preset command globalize
     global preset
     
     commands = presetv + take_in.strip().split() #Make list of command/args
+
+    for z in range(len(commands)):
+        if commands[z - 1] == '===DISPLAY':
+            exec_disp = ''
+            del commands[z - 1]
+            for t in commands:
+                exec_disp = exec_disp + " " + t
+            print("Executing: " + exec_disp[1:])
 
 
     
@@ -102,7 +146,8 @@ def standard_inputs(take_in): #Built in inputs
         if len(commands) >= 2:
             preset = True
             presetv = [commands[1]]
-            print('Enter "cancel_preset" to exit preset')
+            if not(FOP):
+                print('Enter "cancel_preset" to exit preset')
         if len(commands) == 1:
             print()
             inputv = prompt("Enter preset command: ", False)
@@ -122,12 +167,16 @@ def standard_inputs(take_in): #Built in inputs
 
 
     if commands[0] == 'notifications': #Get notifications
-        try:
-            notifications = requests.get("https://raw.githubusercontent.com/TheWolfgaming86/FANG-ONLINE-RESOURCES/master/NOTIFICATIONS")
-            print()
-            print(notifications.text)
-        except Exception:
-            print("Error while trying to get notifications from Fang Repositories")
+        if online_tools_active:
+            try:
+                notifications = requests.get("https://raw.githubusercontent.com/TheWolfgaming86/FANG-ONLINE-RESOURCES/master/NOTIFICATIONS")
+                print()
+                print(notifications.text)
+            except Exception:
+                print("Error collecting notifications from Fang Repositories")
+            return commands[0]
+        else:
+            print("Online tools not active, install online tools to use this function")
 
 
 
@@ -248,16 +297,17 @@ def standard_inputs(take_in): #Built in inputs
         print()
         print("FangOS uses a command based navigation system")
         print("There are currently ten built in commands to use in 0.2 BETA")
-        print("clear: no extra arguments needed, \n\tmoves the screen down and presents new prompt")
-        print("math [operation]: optional argument, it performs the inputed operation")
-        print("load [name]: optional argument, it loads the inputed file name")
-        print("list [list name]: optional argument, it lists the available \n\textensions, apps, or automations")
-        print("termexec [command line]: optional argument, \n\tit passes the specified command to the terminal")
-        print("pyexec [python line]: optional argument, it performs the specified python command")
-        print("quit: no extra arguments, it quits back to terminal")
-        print("preset [preset command]: optional argument, sets a command before each prompt \n\tfor quick use of one command")
-        print("notifications: no arguments needed, shows notifications and alerts from the Fang Repositories")
-        print("update [version]: optional argument, downloads and installs the \n\tspecified version of FangOS")
+        print("> clear: no extra arguments needed, \n\tmoves the screen down and presents new prompt")
+        print("> math [operation]: optional argument, it performs the inputed operation")
+        print("> load [name]: optional argument, it loads the inputed file name")
+        print("> list [list name]: optional argument, it lists the available \n\textensions, apps, or automations")
+        print("> termexec [command line]: optional argument, \n\tit passes the specified command to the terminal")
+        print("> pyexec [python line]: optional argument, it performs the specified python command")
+        print("> quit: no extra arguments, it quits back to terminal")
+        print("> preset [preset command]: optional argument, sets a command before each prompt \n\tfor quick use of one command")
+        print("> notifications: no arguments needed, shows notifications and alerts from the Fang Repositories")
+        print("> update [version]: optional argument, downloads and installs the \n\tspecified version of FangOS")
+        print("- Including the '===DISPLAY' modifier anywhere in the command \n\twill state the operation once executed")
         print("- There are other commands available if they are within your extensions folder")
         return commands[0]
 
@@ -280,9 +330,12 @@ def standard_inputs(take_in): #Built in inputs
                 print(eval(prompt("Enter problem", False)))
             except Exception:
                 print("Error While computing problem")
-        if len(commands) == 2:
+        if len(commands) >= 2:
             try:
-                print(eval(commands[1]))
+                matheval = ''
+                for u in commands[1:]:
+                    matheval = matheval + u
+                print(eval(matheval))
             except Exception:
                 print("error while computing problem")
         elif len(commands) >= 3:
@@ -297,11 +350,14 @@ def standard_inputs(take_in): #Built in inputs
 
 
     if commands[0] == 'update':
-        if len(commands) >= 2:
-            fang_update(commands[1])
-        if len(commands) == 1:
-            fang_update()
-        return commands[0]
+        if online_tools_active:
+            if len(commands) >= 2:
+                fang_update(commands[1])
+            if len(commands) == 1:
+                fang_update()
+            return commands[0]
+        else:
+            print("Online tools not active, install online tools to use this function")
 
 
 
@@ -469,7 +525,7 @@ def automation_executer(path=None): #Execute Fenris automations
 							disp = True
 					if disp:
 						print("Executing: " + command)
-					com = standard_inputs(command)
+					com = standard_inputs(command, True)
 					if com == None:
 						print("Error detected")
 						return None
@@ -499,7 +555,7 @@ def automation_executer(path=None): #Execute Fenris automations
 							disp = True
 					if disp:
 						print("Executing: " + command)
-					com = standard_inputs(command)
+					com = standard_inputs(command, True)
 					if com == None:
 						print("Error detected")
 						return None
@@ -531,7 +587,14 @@ def fang_update(version_n=False):
         descision = input("> ")
         if descision != 'y':
             return None
-        avail_updates = requests.get("https://raw.githubusercontent.com/TheWolfgaming86/FANG-UPDATER/master/AVAILABLE-PACKAGES")
+        try:
+            avail_updates = requests.get("https://raw.githubusercontent.com/TheWolfgaming86/FANG-UPDATER/master/AVAILABLE-PACKAGES")
+        except ConnectionError:
+            print("Connection Error, Stopping...")
+            return None
+        except Exception:
+            print("Error collecting updates from Fang Repositories, Stopping...")
+            return None
         print()
         print(avail_updates.text)
         version = input("Please enter the version that you want from the list above: ")
@@ -542,7 +605,14 @@ def fang_update(version_n=False):
         
 
     time.sleep(1)
-    update = requests.get("https://raw.githubusercontent.com/TheWolfgaming86/FANG-UPDATER/master/FANG-UPDATE-" + version)
+    try:
+        update = requests.get("https://raw.githubusercontent.com/TheWolfgaming86/FANG-UPDATER/master/FANG-UPDATE-" + version)
+    except ConnectionError:
+        print("Connection Error, Stopping...")
+        return None
+    except Exception:
+        print("Error collecting updates from Fang Repositories, Stopping...")
+        return None
     if update.text == '404: Not Found\n':
         print("Version not found, stopping")
         return None
@@ -583,12 +653,14 @@ def fang_update(version_n=False):
 		
 
 if len(arguments) == 1:
-	while True:
-	    if preset == True:
-	        prompt_e = presetv[0] + " " if len(presetv) >= 1 else ''
-	    command_get = standard_inputs(prompt(" ", line=False, prompt_text="f|: " + prompt_e))
-	    if command_get == 'quit':
-	        break
+    while True:
+        if preset == True:
+            prompt_e = presetv[0] + " " if len(presetv) >= 1 else ''
+        command_get = standard_inputs(prompt(" ", line=False, prompt_text="f|: " + prompt_e))
+
+        if command_get == 'quit':
+            break
+
 
 if len(arguments) > 1:
     execArgs = ''
