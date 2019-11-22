@@ -8,55 +8,80 @@ v0.2 - INDEV
 import os #Import Necessary modules
 import getpass
 import time
+starttime = time.time()
 import sys
+import socket
+    
 '''
 multiple argument math
 Fenris operating Mode
 - apply to all functions
+add ===SUBPROCESS
 '''
-
-
-
 arguments = sys.argv
+for x in range(len(arguments)):
+    arguments[x-1] = arguments[x-1].replace("___forward_slash___", "/")
+    arguments[x-1] = arguments[x-1].replace("___open_paren___", "(")
+    arguments[x-1] = arguments[x-1].replace("___close_paren___", ")")
+    arguments[x-1] = arguments[x-1].replace("___asterisk___", "*")
+    arguments[x-1] = arguments[x-1].replace("___dash___", "-")
+    arguments[x-1] = arguments[x-1].replace("___double_quote___", '"')
+    arguments[x-1] = arguments[x-1].replace("___single_quote___", "'")
+
 
 user = getpass.getuser() #Define necessary variables
 presetv = []
 preset = False
 prompt_e = ''
+version = 'vDEVBUILD'
+last = []
+maximum_subprocesses = 4
+
+def clear():
+    os.system("clear")
+    print()
+    print()
+    print("Fang OS", version)
+    if version == "vDEVBUILD":
+        print("DEVELOPEMENT BUILD -- MAY BE UNSTABLE")
+    print("-------------------")
 
 
 if len(arguments) == 1:
     print("Preparing Files...")
-    online_tools_active = True
+online_tools_active = True
 
-    try: #online tools installation
-        online_tools_active = True
-        import requests
-    except Exception:
+try: #online tools installation
+    online_tools_active = True
+    import requests
+except Exception:
+    print()
+    print("FangOS currently doesn't have the necessary online tools,\n would you like to install them now?")
+    if not(input("> ") != "y"):
         print()
-        print("FangOS currently doesn't have the necessary online tools,\n would you like to install them now?")
-        if not(input("> ") != "y"):
+        print("installing...")
+        try:
+            os.system("pip3 install --user requests")
+            time.sleep(2)
+            import requests
+        except Exception:
             print()
-            print("installing...")
-            try:
-                os.system("pip3 install --user requests")
-                import requests
-            except Exception:
-                print()
-                print("There was an error while trying to download the online tools, \nplease make sure you have an open internet connection.")
-                print("Access to updates and repositories will be temorarily offline, \nrestart FangOS if you would like to install the online tools")
-                time.sleep(1)
-                online_tools_active = False
-        else:
-            print("Not installing the online tools will prohibit you from gaining access to updates and Fang repositories, \nrestart FangOS if you would like to install the online tools")
-            online_tools_active = False
+            print("There was an error while trying to download the online tools, \nplease make sure you have an open internet connection.")
+            print("Access to updates and repositories will be temorarily offline, \nrestart FangOS if you would like to install the online tools")
             time.sleep(1)
+            online_tools_active = False
+    else:
+        print("Not installing the online tools will prohibit you from gaining access to updates and Fang repositories, \nrestart FangOS if you would like to install the online tools")
+        online_tools_active = False
+        time.sleep(1)
 
 fang_a_c = False #Search for Fang_Apps and Fang_Extensions and
 fang_e_c = False #creates if does not exist
 fang_au_c = False
 
-
+file = open(".FangRegulator.FANG", 'w')
+file.write("Locked")
+file.close()
 for x in os.listdir("/Users/" + user):
     if x == 'Fang_Apps':
         fang_a_c = True
@@ -103,8 +128,9 @@ for x in os.listdir("/Users/" + user + "/Fang_Extensions"): #Gather list of exte
 if len(arguments) == 1:
     print() #Boot Text
     print()
-    print("Welcome to Fang OS vDEVBUILD,", user)
-    print("DEVELOPMENT BUILD -- MAY BE UNSTABLE")
+    print("Welcome to Fang OS", version + ",", user)
+    if version == "vDEVBUILD":
+        print("DEVELOPMENT BUILD -- MAY BE UNSTABLE")
     print("-------------------")
 
     time.sleep(1)
@@ -121,36 +147,84 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
     
     global presetv #preset command globalize
     global preset
-    
+    global last
+    global maximum_subprocesses
+    regulator = open(".FangRegulator.FANG", 'r')
+    if regulator.read() != "Locked":
+        print("The Regulator File is currently unlocked, \ntake caution while running heavy processes")
+        maximum_subprocesses = "Infinite"
+    regulator.close()
     commands = presetv + take_in.strip().split() #Make list of command/args
 
+    exec_disp = False
     for z in range(len(commands)):
         if commands[z - 1] == '===DISPLAY':
             exec_disp = ''
             del commands[z - 1]
             for t in commands:
                 exec_disp = exec_disp + " " + t
-            print("Executing: " + exec_disp[1:])
+            if exec_disp[1:] == "lastin":
+                print("Executing: ", end="")
+            else:
+                print("Executing: " + exec_disp[1:])
+
+    if len(commands) > 0 and not(preset) and commands[0] != "lastin":
+        last = commands
 
 
-    
     if len(commands) == 0: #Detect if no input is specified
         print()
         print("No input detected")
         return None
 
+    if commands[0] == 'lastin': #lastin command
+        if len(last) == 0:
+            print("No last input detected")
+            return commands[0]
+        commands = last
+        if exec_disp:
+            exec_disp = ''
+            for t in commands:
+                exec_disp = exec_disp + " " + t
+            print(exec_disp[1:])
+
+
+    if commands[0] == 'stats': #stats command
+        print()
+        print("Fang OS")
+        print("-------")
+        print("Version: " + version)
+        print("User: " + user)
+        print("Virtual Machine: Not Active")
+        print("Hardware Acceleration: Not Active")
+        print("Time since startup: " + str(time.time() - starttime))
+        return commands[0]
+
 
 
     if commands[0] == 'preset': #Preset command
         if len(commands) >= 2:
+            if commands[1] == "lastin":
+                print("Cannot set preset to 'lastin'")
+                return commands[0]
+            if commands[1] == 'preset':
+                print("Cannot set preset to preset")
+                return commands[0]
             preset = True
             presetv = [commands[1]]
+            
             if not(FOP):
                 print('Enter "cancel_preset" to exit preset')
         if len(commands) == 1:
             print()
             inputv = prompt("Enter preset command: ", False)
             if len(inputv.strip()) > 0:
+                if inputv.strip().split()[0] == "lastin":
+                    print("Cannot set preset to 'lastin'")
+                    return commands[0]
+                if inputv.strip().split()[0] == 'preset':
+                    print("Cannot set preset to preset")
+                    return commands[0]
                 preset = True
                 presetv = [inputv.strip().split()[0]]
                 print('Enter "cancel_preset" to exit preset')
@@ -176,6 +250,14 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
             return commands[0]
         else:
             print("Online tools not active, install online tools to use this function")
+            return commands[0]
+
+
+
+    if commands[0] == 'restart':
+        print("Restarting...")
+        time.sleep(0.2)
+        return commands[0]
 
 
 
@@ -201,9 +283,8 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
     if commands[0] == 'pyexec': #exec python function
         if len(commands) >= 2:
         	execvar = ''
-        	for command in commands:
-        		if command != "pyexec":
-        			execvar = execvar + " " + command
+        	for command in commands[1:]: 
+        		execvar = execvar + " " + command
         	try:
         		exec(execvar[1:])
         	except Exception:
@@ -238,7 +319,7 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
             if get_in == "fang_apps":
                 apps = []
                 for x in os.listdir("/Users/" + user + "/Fang_Apps"):
-                    if x[len(x)-2:] == 'py':
+                    if x[len(x)-2:] == 'py' or x[len(x)-3:] == 'pyc':
                         apps.append(x)
                 print()
                 for x in apps:
@@ -270,7 +351,7 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
             if commands[1] == "fang_apps":
                 apps = []
                 for x in os.listdir("/Users/" + user + "/Fang_Apps"):
-                    if x[len(x)-2:] == 'py':
+                    if x[len(x)-2:] == 'py' or x[len(x)-3:] == 'pyc':
                         apps.append(x)
                 print()
                 for x in apps:
@@ -295,7 +376,7 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
     if commands[0] == 'help': #help command
         print()
         print("FangOS uses a command based navigation system")
-        print("There are currently ten built in commands to use in 0.2 BETA")
+        print("There are currently twelve built in commands to use in", version)
         print("> clear: no extra arguments needed, \n\tmoves the screen down and presents new prompt")
         print("> math [operation]: optional argument, it performs the inputed operation")
         print("> load [name]: optional argument, it loads the inputed file name")
@@ -306,18 +387,14 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
         print("> preset [preset command]: optional argument, sets a command before each prompt \n\tfor quick use of one command")
         print("> notifications: no arguments needed, shows notifications and alerts from the Fang Repositories")
         print("> update [version]: optional argument, downloads and installs the \n\tspecified version of FangOS")
+        print("> stats: no arguments needed: gives current information in running FangOS window")
+        print("> lastin: no arguments needed: inputs the command inputed before the current line")
         print("- Including the '===DISPLAY' modifier anywhere in the command \n\twill state the operation once executed")
         print("- There are other commands available if they are within your extensions folder")
         return commands[0]
 
     if commands[0] == 'clear': # Clear prompt
-        os.system("clear")
-        print()
-        print()
-        print()
-        print("Fang OS vDEVBUILD")
-        print("DEVELOPEMENT BUILD -- MAY BE UNSTABLE")
-        print("-------------------")
+        clear()
         return commands[0]
 
 
@@ -357,20 +434,24 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
             return commands[0]
         else:
             print("Online tools not active, install online tools to use this function")
+            return commands[0]
 
 
 
     if commands[0] == 'load': #Load Program
         filesA = []
         filesAu = []
+        filesAc = []
         print()
         if len(commands) == 1:            
             print("Scanning for available Apps and Automations ")
             print()
             time.sleep(0.5)
             for file in os.listdir("/Users/" + user + "/Fang_Apps"):
-                if file[len(file)-2:] == "py":
+                if file[len(file)-2:] == "py" :
                     filesA.append(file)
+                if file[len(file)-3:] == 'pyc':
+                    filesAc.append(file)
             for file in os.listdir("/Users/" + user + "/Fang_Automations"):
                 if file[len(file)-3:] == "fen":
                     filesAu.append(file)
@@ -382,6 +463,8 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
             
             for x in filesA:
                 print(x[:len(x)-3] + " - Fang App (.py)")
+            for x in filesAc:
+                print(x[:len(x)-4] + " - Fang Compiled App (.pyc)")
             for x in filesAu:
             	print(x[:len(x)-4] + " - Fang Automation (.fen)")
 
@@ -398,8 +481,19 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
                 if file_name + ".py" == x:
                    try:
                        os.system("python3 " + "/Users/" + user + "/Fang_Apps/" + file_name + ".py")
+                       if len(arguments) == 1:
+                            clear()
                    except Exception:
                        print("Error while opening App.")
+            for x in filesAc:
+                if file_name + ".pyc" == x:
+                   try:
+                       os.system("python3 " + "/Users/" + user + "/Fang_Apps/" + file_name + ".pyc")
+                       if len(arguments) == 1:
+                            clear()
+                   except Exception:
+                       print("Error while opening App.")
+
             for x in filesAu:
                 if file_name + ".fen" == x:
                    try:
@@ -414,18 +508,29 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
             app_load = False
             auto_load = False
             for x in os.listdir("/Users/" + user + "/Fang_Apps"):
-            	if commands[1] + ".py" == x:
-            		app_load = commands[1] + ".py"
+                if commands[1] + ".py" == x:
+                    app_load = commands[1] + ".py"
+                if commands[1] + ".pyc" == x:
+                    app_load = commands[1] + ".pyc"
             for x in os.listdir("/Users/" + user + "/Fang_Automations"):
             	if commands[1] + ".fen" == x:
             		auto_load = commands[1] + ".fen"
 
             if app_load:
-            	if app_load[len(app_load)-2:] == "py":
-		            try:
-		                os.system("python3 " + "/Users/" + user + "/Fang_Apps/" + commands[1] + ".py")
-		            except Exception:
-		                print("Error while opening program.")
+                if app_load[len(app_load)-2:] == "py":
+                    try:
+                        os.system("python3 " + "/Users/" + user + "/Fang_Apps/" + commands[1] + ".py")
+                        if len(arguments) == 1:
+                            clear()                    
+                    except Exception:
+                        print("Error while opening program.")
+                if app_load[len(app_load)-3:] == "pyc":
+                    try:
+                        os.system("python3 " + "/Users/" + user + "/Fang_Apps/" + commands[1] + ".pyc")
+                        if len(arguments) == 1:
+                            clear()
+                    except Exception:
+                        print("Error while opening program.")
             if auto_load:
             	if auto_load[len(auto_load)-3:] == "fen":
             		try: 
@@ -439,7 +544,7 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
 
 
     
-    if commands[0] != "update" and commands[0] != "load" and commands[0] != "math" and commands[0] != "help" and commands[0] != "list" and commands[0] != "quit" and commands[0] != "clear" and commands[0] != "termexec" and commands[0] != "pyexec" and commands[0] != "setuser" and commands[0] != 'notifications':
+    if commands[0] != "stats" and commands[0] != "update" and commands[0] != "load" and commands[0] != "math" and commands[0] != "help" and commands[0] != "list" and commands[0] != "quit" and commands[0] != "clear" and commands[0] != "termexec" and commands[0] != "pyexec" and commands[0] != "setuser" and commands[0] != 'notifications':
          for x in extensions:
              opened = open(x, 'r')
              opened_l = str(opened.read()).strip().split()
@@ -448,127 +553,141 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
                  passto = ''
                  for y in range(len(commands) - 1):
                      passto = passto + " " + commands[y + 1]
+                     passto = passto.replace("/", "___forward_slash___")
+                     passto = passto.replace("(", "___open_paren___")
+                     passto = passto.replace(")", "___close_paren___")
+                     passto = passto.replace("*", "___asterisk___")
+                     passto = passto.replace("-", "___dash___")
+                     passto = passto.replace('"', "___double_quote___")
+                     passto = passto.replace("'", "___single_quote___")
+
+
                      
                  os.system("python3 " + x + " " + passto)
                  return commands[0]
 
              
-         print("Command not found")
+         print("Command not found: %s" % commands[0])
          return None
 
 
 
 
-def automation_executer(path=None): #Execute Fenris automations
-	if path == None:
-		print("Internal path specification error")
-		return None
-	read = open(path, "r")
-	splited = read.read().strip().split()
-	read.close()
+def automation_executer(path=None, bootmode=False): #Execute Fenris 1.0 automations
+    if path == None:
+    	print("Internal path specification error")
+    	return None
+    read = open(path, "r")
+    splited = read.read().strip().split()
+    read.close()
 
-	repeat = 0
-	cor_file = False
-	print("Constructing Formatting")
-	time.sleep(0.5)
-	for x in splited:
-		if x == "FILETYPE=autom":
-			cor_file = True
+    repeat = 0
+    cor_file = False
+    if not(bootmode):
+        print("Constructing Formatting")
+        time.sleep(0.4)
 
-		if x[:7] == "REPEAT=":
-			if str(x[7:]) != "endless":
-				repeat = int(x[7:])
-			else:
-				repeat = x[7:]
+    for x in splited:
+    	if x == "FILETYPE=autom":
+    		cor_file = True
 
-	if repeat and cor_file == True:
-		print("Formatting successful")
-		time.sleep(0.2)
-		print("Compiling...")
-		time.sleep(0.5)
-	else:
-		print("Incorrect formatting")
-		return None
+    	if x[:7] == "REPEAT=":
+    		if str(x[7:]) != "endless":
+    			repeat = int(x[7:])
+    		else:
+    			repeat = x[7:]
 
-	compiled = []
-	record = False
-	add_to_compiled = []
-	for x in splited[2:]:
-		if x == "c::" or x == "d::":
-			if record == True and x == "c::":
-				print("Closing Statement not found, Stopping process")
-				return None	
-			record = True
-		if record:
-			add_to_compiled.append(x)
-		if x == ">..":
-			record = False
-			compiled.append(add_to_compiled)
-			add_to_compiled = []
+    if repeat and cor_file == True:
+        if not(bootmode):
+            print("Formatting successful")
+            time.sleep(0.2)
+            print("Compiling...")
+            time.sleep(0.5)
+    else:
+        if not(bootmode):
+            print("Incorrect formatting, Make sure that your code is written for Fenris 1.0")
+        return None
 
-	print("Compiling complete")
-	time.sleep(0.5)
-	print("Starting...")
-	time.sleep(0.5)
+    if not(bootmode):
+        print("Compiling complete!")
+        time.sleep(0.4)
+        print("Starting...")
+        time.sleep(0.4)
 
-	if repeat != "endless":
-		for q in range(int(repeat)):
-			for x in compiled:
-				if x[0] == 'c::':
-					command = ''
-					disp = False
-					for y in x:
-						if y != "c::" and y != ">.." and y != "===DISPLAY":
-							command = (command + " " + y) if len(command) != 0 else y
-						if y == "===DISPLAY":
-							disp = True
-					if disp:
-						print("Executing: " + command)
-					com = standard_inputs(command, True)
-					if com == None:
-						print("Error detected")
-						return None
+    compiled = []
+    record = False
+    add_to_compiled = []
+    for x in splited[2:]:
+    	if x == "c::" or x == "d::":
+    		if record == True and x == "c::":
+    			print("Closing Statement not found, Stopping process")
+    			return None	
+    		record = True
+    	if record:
+    		add_to_compiled.append(x)
+    	if x == ">..":
+    		record = False
+    		compiled.append(add_to_compiled)
+    		add_to_compiled = []
 
-				if x[0] == 'd::':
-						command = ''
-						wait = 0
-						for y in x:
-							if y != "d::" and y != ">.." and y != "===DISPLAY":
-								wait = str(float(y) + float(wait))
-							if y == "===DISPLAY":
-								print("Waited " + wait + " second/s")
-							if y != "d::" and y != ">.." and y != "===DISPLAY":
-								time.sleep(float(wait))
+    if repeat != "endless":
+        for q in range(int(repeat)):
+        	for x in compiled:
+        		if x[0] == 'c::':
+        			command = ''
+        			disp = False
+        			for y in x:
+        				if y != "c::" and y != ">.." and y != "===DISPLAY":
+        					command = (command + " " + y) if len(command) != 0 else y
+        				if y == "===DISPLAY":
+        					disp = True
+        			if disp:
+        				print("Executing: " + command)
+        			com = standard_inputs(command, True)
+        			if com == None:
+        				print("Error detected")
+        				return None
+
+        		if x[0] == 'd::':
+        				command = ''
+        				wait = 0
+        				for y in x:
+        					if y != "d::" and y != ">.." and y != "===DISPLAY":
+        						wait = str(float(y) + float(wait))
+        					if y == "===DISPLAY":
+        						print("Waited " + wait + " second/s")
+        					if y != "d::" and y != ">.." and y != "===DISPLAY":
+        						time.sleep(float(wait))
 
 
-	elif repeat == "endless":
-		while True:
-			for x in compiled:
-				if x[0] == 'c::':
-					command = ''
-					disp = False
-					for y in x:
-						if y != "c::" and y != ">.." and y != "===DISPLAY":
-							command = (command + " " + y) if len(command) != 0 else y
-						if y == "===DISPLAY":
-							disp = True
-					if disp:
-						print("Executing: " + command)
-					com = standard_inputs(command, True)
-					if com == None:
-						print("Error detected")
-						return None
+    elif repeat == "endless":
+    	while True:
+    		for x in compiled:
+    			if x[0] == 'c::':
+    				command = ''
+    				disp = False
+    				for y in x:
+    					if y != "c::" and y != ">.." and y != "===DISPLAY":
+    						command = (command + " " + y) if len(command) != 0 else y
+    					if y == "===DISPLAY":
+    						disp = True
+    				if disp:
+    					print("Executing: " + command)
+    				com = standard_inputs(command, True)
+    				if com == None:
+    					print("Error detected")
+    					return None
 
-				if x[0] == 'd::':
-						command = ''
-						wait = 0
-						for y in x:
-							if y != "d::" and y != ">.." and y != "===DISPLAY":
-								wait = str(float(y) + float(wait))
-							if y == "===DISPLAY":
-								print("Waited " + wait + " second/s")
-							if y != "d::" and y != ">.." and y != "===DISPLAY":
-								time.sleep(float(wait))
+    			if x[0] == 'd::':
+    					command = ''
+    					wait = 0
+    					for y in x:
+    						if y != "d::" and y != ">.." and y != "===DISPLAY":
+    							wait = str(float(y) + float(wait))
+    						if y == "===DISPLAY":
+    							print("Waited " + wait + " second/s")
+    						if y != "d::" and y != ">.." and y != "===DISPLAY":
+    							time.sleep(float(wait))
 
 
 
@@ -618,6 +737,9 @@ def fang_update(version_n=False):
     print("Putting aside old packages...")
     try:
         os.remove("/Users/" + user_n + "/fang.pyc")
+    except Exception:
+        pass
+    try:
         os.rename("/Users/" + user_n + "/__pycache__", "/Users/" + user_n + "/__pycache__0")
     except Exception:
         pass
@@ -652,11 +774,13 @@ def fang_update(version_n=False):
 		
 
 if len(arguments) == 1:
+    for x in os.listdir("/Users/" + user):
+        if x == ".FangBootInstructions.fen":
+            automation_executer("/Users/" + user + "/.FangBootInstructions.fen", True)
     while True:
         if preset == True:
             prompt_e = presetv[0] + " " if len(presetv) >= 1 else ''
         command_get = standard_inputs(prompt(" ", line=False, prompt_text="f|: " + prompt_e))
-
         if command_get == 'quit':
             break
 
