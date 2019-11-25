@@ -12,7 +12,13 @@ import time
 starttime = time.time()
 import sys
 import socket
-import appscript
+try:
+	import appscript
+except Exception:
+	os.system("pip3 install --user appscript")
+	os.system("clear")
+	time.sleep(1)
+	print("Please Restart FangOS")
     
 '''
 multiple argument math
