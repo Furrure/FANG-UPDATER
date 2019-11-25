@@ -1,3 +1,4 @@
+'''FangOS'''
 '''
 Jacob Scrapchansky, Cryptonic Designs, 2019
 Fang OS, a terminal based operating system made in python, it has the ability to run
@@ -11,6 +12,7 @@ import time
 starttime = time.time()
 import sys
 import socket
+import appscript
     
 '''
 multiple argument math
@@ -19,6 +21,16 @@ Fenris operating Mode
 add ===SUBPROCESS
 '''
 arguments = sys.argv
+def converter(string):
+    passto = string
+    passto = passto.replace("/", "___forward_slash___")
+    passto = passto.replace("(", "___open_paren___")
+    passto = passto.replace(")", "___close_paren___")
+    passto = passto.replace("*", "___asterisk___")
+    passto = passto.replace("-", "___dash___")
+    passto = passto.replace('"', "___double_quote___")
+    passto = passto.replace("'", "___single_quote___")
+    return passto
 for x in range(len(arguments)):
     arguments[x-1] = arguments[x-1].replace("___forward_slash___", "/")
     arguments[x-1] = arguments[x-1].replace("___open_paren___", "(")
@@ -108,6 +120,12 @@ for x in os.listdir("/Users/" + user + "/Fang_Automations"):
 	os.rename("/Users/" + user + "/Fang_Automations/" + x, "/Users/" + \
               user + "/Fang_Automations/" + x.replace(' ', ''))
 
+
+
+
+
+
+
 if len(arguments) == 1:
 	time.sleep(1)
 
@@ -149,11 +167,6 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
     global preset
     global last
     global maximum_subprocesses
-    regulator = open(".FangRegulator.FANG", 'r')
-    if regulator.read() != "Locked":
-        print("The Regulator File is currently unlocked, \ntake caution while running heavy processes")
-        maximum_subprocesses = "Infinite"
-    regulator.close()
     commands = presetv + take_in.strip().split() #Make list of command/args
 
     exec_disp = False
@@ -167,6 +180,14 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
                 print("Executing: ", end="")
             else:
                 print("Executing: " + exec_disp[1:])
+        if commands[z - 1] == '===SUBPROCESS':
+            del commands[z - 1]
+            exec_disp = ''
+            for t in commands:
+                exec_disp = exec_disp + " " + t
+            exec_disp = converter(exec_disp)
+            appscript.app('Terminal').do_script('python3 fang.pyc' + exec_disp)
+            return commands[0]
 
     if len(commands) > 0 and not(preset) and commands[0] != "lastin":
         last = commands
@@ -196,7 +217,6 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
         print("Version: " + version)
         print("User: " + user)
         print("Virtual Machine: Not Active")
-        print("Hardware Acceleration: Not Active")
         print("Time since startup: " + str(time.time() - starttime))
         return commands[0]
 
@@ -235,6 +255,7 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
         if len(commands) > 1 and preset == True:
             if commands[1] == 'cancel_preset':
                 presetv = []
+                preset = False
                 return commands[0]
 
 
@@ -390,6 +411,7 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
         print("> stats: no arguments needed: gives current information in running FangOS window")
         print("> lastin: no arguments needed: inputs the command inputed before the current line")
         print("- Including the '===DISPLAY' modifier anywhere in the command \n\twill state the operation once executed")
+        print("- Including the '===SUBPROCESS' modifier anywhere in the command \n\twill execute the command in a seperate instance")
         print("- There are other commands available if they are within your extensions folder")
         return commands[0]
 
@@ -778,8 +800,7 @@ if len(arguments) == 1:
         if x == ".FangBootInstructions.fen":
             automation_executer("/Users/" + user + "/.FangBootInstructions.fen", True)
     while True:
-        if preset == True:
-            prompt_e = presetv[0] + " " if len(presetv) >= 1 else ''
+        prompt_e = presetv[0] + " " if len(presetv) >= 1 else ''
         command_get = standard_inputs(prompt(" ", line=False, prompt_text="f|: " + prompt_e))
         if command_get == 'quit':
             break
@@ -793,3 +814,4 @@ if len(arguments) > 1:
     standard_inputs(execArgs[1:])
 
 quit()
+
