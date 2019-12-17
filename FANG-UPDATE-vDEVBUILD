@@ -592,34 +592,38 @@ def standard_inputs(take_in, FOP=False): #Built in inputs
         return commands[0]
 
 
-    
+
     if commands[0] != "reinit" and commands[0] != "stats" and commands[0] != "update" and commands[0] != "load" and commands[0] != "math" and commands[0] != "help" and commands[0] != "list" and commands[0] != "quit" and commands[0] != "clear" and commands[0] != "termexec" and commands[0] != "pyexec" and commands[0] != "setuser" and commands[0] != 'notifications':
-         for x in extensions:
-             opened = open(x, 'r')
-             opened_l = str(opened.read()).strip().split()
-             opened.close()
-             if opened_l[0] == "'''" + commands[0] + "'''":
-                 passto = ''
-                 for y in range(len(commands) - 1):
-                     passto = passto + " " + commands[y + 1]
-                     passto = passto.replace("/", "___forward_slash___")
-                     passto = passto.replace("(", "___open_paren___")
-                     passto = passto.replace(")", "___close_paren___")
-                     passto = passto.replace("*", "___asterisk___")
-                     passto = passto.replace("-", "___dash___")
-                     passto = passto.replace('"', "___double_quote___")
-                     passto = passto.replace("'", "___single_quote___")
-                     passto = passto.replace('!', "___exclamation_point___")
-                     passto = passto.replace("?", "___question_mark___")
+        try:
+            for x in extensions:
+                opened = open(x, 'r')
+                opened_l = str(opened.read()).strip().split()
+                opened.close()
+                if opened_l[0] == "'''" + commands[0] + "'''":
+                    passto = ''
+                    for y in range(len(commands) - 1):
+                        passto = passto + " " + commands[y + 1]
+                        passto = passto.replace("/", "___forward_slash___")
+                        passto = passto.replace("(", "___open_paren___")
+                        passto = passto.replace(")", "___close_paren___")
+                        passto = passto.replace("*", "___asterisk___")
+                        passto = passto.replace("-", "___dash___")
+                        passto = passto.replace('"', "___double_quote___")
+                        passto = passto.replace("'", "___single_quote___")
+                        passto = passto.replace('!', "___exclamation_point___")
+                        passto = passto.replace("?", "___question_mark___")
 
 
-                     
-                 os.system("python3 " + x + " " + passto)
-                 return commands[0]
-
-             
-         print("Command not found: %s" % commands[0])
-         return None
+                    os.system("python3 " + x + " " + passto)
+                    return commands[0]
+            print()
+            print("Command not found: %s" % commands[0])
+            return None
+        except Exception:
+            print()
+            print('There was a problem accessing extensions,\nplease the command "reinit" to reset extension cache')
+            print()
+            return None
 
 
 
@@ -843,4 +847,5 @@ if len(arguments) > 1:
     standard_inputs(execArgs[1:])
 
 quit()
+
 
